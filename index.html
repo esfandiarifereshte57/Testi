@@ -3,816 +3,711 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Acioai</title>
+  <title>Acioai - چت هوش مصنوعی</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css" rel="stylesheet">
   <script src="/_sdk/element_sdk.js"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <style>
     body {
       box-sizing: border-box;
+      font-family: 'Vazirmatn', sans-serif;
     }
+    
     * {
       font-family: 'Vazirmatn', sans-serif;
     }
-    .chat-bubble-user {
-      background: linear-gradient(135deg, #10B981 0%, #059669 100%);
-      border-radius: 20px 20px 4px 20px;
+    
+    .typing-indicator span {
+      animation: blink 1.4s infinite both;
     }
-    .chat-bubble-ai {
-      background: linear-gradient(135deg, #ffffff 0%, #f3f4f6 100%);
-      border-radius: 20px 20px 20px 4px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    
+    .typing-indicator span:nth-child(2) {
+      animation-delay: 0.2s;
     }
-    .glass-card {
-      background: rgba(255, 255, 255, 0.95);
-      backdrop-filter: blur(20px);
-      border: 1px solid rgba(255,255,255,0.3);
+    
+    .typing-indicator span:nth-child(3) {
+      animation-delay: 0.4s;
     }
-    .typing-dot {
-      animation: typing 1.4s infinite;
+    
+    @keyframes blink {
+      0%, 60%, 100% { opacity: 0.3; }
+      30% { opacity: 1; }
     }
-    .typing-dot:nth-child(2) { animation-delay: 0.2s; }
-    .typing-dot:nth-child(3) { animation-delay: 0.4s; }
-    @keyframes typing {
-      0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
-      30% { transform: translateY(-8px); opacity: 1; }
+    
+    .message-appear {
+      animation: slideIn 0.3s ease-out;
     }
-    .fade-in {
-      animation: fadeIn 0.3s ease-out;
+    
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
     }
+    
+    .page-transition {
+      animation: fadeIn 0.2s ease-out;
+    }
+    
     @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(10px); }
-      to { opacity: 1; transform: translateY(0); }
+      from { opacity: 0; }
+      to { opacity: 1; }
     }
-    .slide-up {
-      animation: slideUp 0.4s ease-out;
-    }
-    @keyframes slideUp {
-      from { opacity: 0; transform: translateY(100%); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-    .pulse-glow {
-      animation: pulseGlow 2s infinite;
-    }
-    @keyframes pulseGlow {
-      0%, 100% { box-shadow: 0 0 20px rgba(16, 185, 129, 0.3); }
-      50% { box-shadow: 0 0 40px rgba(16, 185, 129, 0.6); }
-    }
-    .nav-item {
-      transition: all 0.3s ease;
-    }
-    .nav-item:hover {
-      transform: translateY(-2px);
-    }
-    .nav-item.active {
-      background: linear-gradient(135deg, #10B981 0%, #059669 100%);
-      color: white;
-    }
-    .input-glow:focus {
-      box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2);
-    }
-    .btn-primary {
-      background: linear-gradient(135deg, #10B981 0%, #059669 100%);
-      transition: all 0.3s ease;
-    }
-    .btn-primary:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 25px rgba(16, 185, 129, 0.4);
-    }
-    .btn-primary:active {
-      transform: translateY(0);
-    }
-    .scroll-smooth::-webkit-scrollbar {
+    
+    ::-webkit-scrollbar {
       width: 6px;
     }
-    .scroll-smooth::-webkit-scrollbar-track {
-      background: transparent;
+    
+    ::-webkit-scrollbar-track {
+      background: #f1f5f9;
     }
-    .scroll-smooth::-webkit-scrollbar-thumb {
-      background: #d1d5db;
+    
+    ::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
       border-radius: 3px;
     }
-    .ad-card {
-      transition: all 0.3s ease;
-    }
-    .ad-card:hover {
-      transform: scale(1.02);
-      box-shadow: 0 12px 40px rgba(0,0,0,0.15);
-    }
-    .icon {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
+    
+    ::-webkit-scrollbar-thumb:hover {
+      background: #94a3b8;
     }
   </style>
 </head>
-<body class="h-full bg-gradient-to-br from-emerald-50 via-white to-teal-50">
-  <div id="app" class="h-full flex flex-col overflow-hidden">
+<body class="h-full bg-slate-50 text-slate-800">
+  <div id="app" class="h-full w-full flex flex-col overflow-hidden">
     
-    <!-- Auth Screen -->
-    <div id="auth-screen" class="h-full flex items-center justify-center p-4">
-      <div class="glass-card rounded-3xl p-8 w-full max-w-md shadow-2xl slide-up">
-        <!-- Logo -->
-        <div class="text-center mb-8">
-          <div class="w-24 h-24 mx-auto mb-4 rounded-full overflow-hidden pulse-glow">
-            <img src="https://cdn.imgurl.ir/uploads/s369564_photo-output.jpeg" alt="Acioai Logo" class="w-full h-full object-cover" loading="lazy" onerror="this.style.background='linear-gradient(135deg, #10B981 0%, #059669 100%)'; this.alt='Logo';">
-          </div>
-          <h1 id="auth-title" class="text-3xl font-bold text-gray-800 mb-2">Acioai</h1>
-          <p class="text-gray-500">دستیار هوشمند شما</p>
+    <!-- Auth Page -->
+    <div id="auth-page" class="h-full w-full flex flex-col items-center justify-center p-6 page-transition">
+      <div class="w-full max-w-md bg-white rounded-2xl shadow-xl p-8 border border-slate-200">
+        <div class="flex flex-col items-center mb-8">
+          <img src="https://cdn.imgurl.ir/uploads/s369564_photo-output.jpeg" alt="Acioai Logo" class="w-20 h-20 rounded-2xl shadow-lg mb-4" loading="lazy" onerror="this.style.background='linear-gradient(135deg, #6366f1, #8b5cf6)'; this.alt='Acioai';">
+          <h1 class="text-2xl font-bold text-slate-800">Acioai</h1>
+          <p class="text-slate-500 text-sm mt-1">چت هوش مصنوعی پیشرفته</p>
         </div>
         
-        <!-- Auth Form -->
-        <form id="auth-form" class="space-y-4">
-          <div id="name-field">
-            <label for="name-input" class="block text-sm font-medium text-gray-700 mb-2">نام</label>
-            <input type="text" id="name-input" placeholder="نام خود را وارد کنید" 
-                   class="w-full px-4 py-3 rounded-xl border border-gray-200 input-glow focus:outline-none focus:border-emerald-500 transition-all">
+        <div id="auth-tabs" class="flex mb-6 bg-slate-100 rounded-xl p-1">
+          <button id="login-tab" class="flex-1 py-2.5 px-4 rounded-lg text-sm font-medium transition-all bg-white text-slate-800 shadow-sm" onclick="switchAuthTab('login')">ورود</button>
+          <button id="register-tab" class="flex-1 py-2.5 px-4 rounded-lg text-sm font-medium transition-all text-slate-500" onclick="switchAuthTab('register')">ثبت‌نام</button>
+        </div>
+        
+        <form id="auth-form" onsubmit="handleAuth(event)">
+          <div id="name-field" class="mb-4 hidden">
+            <label for="name-input" class="block text-sm font-medium text-slate-700 mb-2">نام</label>
+            <input type="text" id="name-input" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 outline-none transition-all" placeholder="نام خود را وارد کنید">
           </div>
-          <div>
-            <label for="email-input" class="block text-sm font-medium text-gray-700 mb-2">ایمیل</label>
-            <input type="email" id="email-input" placeholder="email@example.com" 
-                   class="w-full px-4 py-3 rounded-xl border border-gray-200 input-glow focus:outline-none focus:border-emerald-500 transition-all">
+          
+          <div class="mb-6">
+            <label for="email-input" class="block text-sm font-medium text-slate-700 mb-2">ایمیل</label>
+            <input type="email" id="email-input" required class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 outline-none transition-all" placeholder="example@email.com">
           </div>
-          <div id="auth-error" class="hidden text-red-500 text-sm text-center py-2 bg-red-50 rounded-lg"></div>
-          <button type="submit" id="auth-submit" class="btn-primary w-full py-3 rounded-xl text-white font-medium">
-            ثبت‌نام
+          
+          <button type="submit" id="auth-submit" class="w-full py-3.5 bg-gradient-to-l from-indigo-600 to-purple-600 text-white rounded-xl font-medium hover:from-indigo-700 hover:to-purple-700 transition-all shadow-lg shadow-indigo-200">
+            ورود
           </button>
         </form>
         
-        <div class="mt-6 text-center">
-          <button id="toggle-auth" class="text-emerald-600 hover:text-emerald-700 font-medium transition-colors">
-            حساب دارید؟ وارد شوید
-          </button>
+        <p id="auth-error" class="text-red-500 text-sm text-center mt-4 hidden"></p>
+        
+        <div class="mt-6 pt-6 border-t border-slate-100 text-center">
+          <p class="text-xs text-slate-400">توسعه‌یافته توسط تیم آکیو | Acio</p>
         </div>
       </div>
     </div>
     
     <!-- Main App -->
-    <div id="main-app" class="hidden h-full flex flex-col">
+    <div id="main-app" class="h-full w-full flex flex-col hidden">
       
       <!-- Header -->
-      <header class="glass-card border-b border-gray-100 px-4 py-3 flex items-center justify-between">
+      <header class="bg-white border-b border-slate-200 px-4 py-3 flex items-center justify-between shrink-0">
         <div class="flex items-center gap-3">
-          <div class="w-10 h-10 rounded-full overflow-hidden">
-            <img src="https://cdn.imgurl.ir/uploads/s369564_photo-output.jpeg" alt="Logo" class="w-full h-full object-cover" loading="lazy" onerror="this.style.background='#10B981';">
-          </div>
+          <img src="https://cdn.imgurl.ir/uploads/s369564_photo-output.jpeg" alt="Acioai" class="w-10 h-10 rounded-xl shadow" loading="lazy" onerror="this.style.background='linear-gradient(135deg, #6366f1, #8b5cf6)';">
           <div>
-            <h1 id="header-title" class="font-bold text-gray-800">Acioai</h1>
-            <p id="user-display" class="text-xs text-gray-500"></p>
+            <h1 id="header-title" class="font-bold text-slate-800">Acioai</h1>
+            <p class="text-xs text-slate-500">مدل 1.0.0</p>
           </div>
         </div>
-        <button id="logout-btn" class="p-2 rounded-lg hover:bg-gray-100 transition-colors" title="خروج">
-          <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
-          </svg>
-        </button>
+        
+        <div class="flex items-center gap-2">
+          <span id="remaining-messages" class="text-xs bg-indigo-100 text-indigo-700 px-3 py-1.5 rounded-full font-medium"></span>
+        </div>
       </header>
       
       <!-- Navigation -->
-      <nav class="glass-card border-b border-gray-100 px-4 py-2">
-        <div class="flex gap-2 overflow-x-auto">
-          <button data-page="chat" class="nav-item active px-4 py-2 rounded-xl text-sm font-medium whitespace-nowrap flex items-center gap-2">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
-            </svg>
-            چت
-          </button>
-          <button data-page="faq" class="nav-item px-4 py-2 rounded-xl text-sm font-medium text-gray-600 whitespace-nowrap flex items-center gap-2">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3C6.477 3 2 6.582 2 11c0 5.174 3.588 9.542 8.563 9.947 1.047.135 1.369.395 1.369 2.645 0 .86-.264 1.338 1.684 2.53 1.023.692 3.172 1.746 3.172-1.97V20.5c4.970-.725 8.211-4.514 8.211-9.5 0-4.418-4.086-8-9.5-8z"></path>
-            </svg>
-            سوالات
-          </button>
-          <button data-page="ads" class="nav-item px-4 py-2 rounded-xl text-sm font-medium text-gray-600 whitespace-nowrap flex items-center gap-2">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5.882V19.24a1.961 1.961 0 01-2.437-1.97V5.882m0 0a1.96 1.96 0 00-2.437 1.97m0 0V5.5c0-.891.12-1.751.364-2.59m0 0C5.307 1.364 6.308 1 7.5 1c2.979 0 5.497 1.98 6.5 4.5M15 19.24l.364 2.59c1.192-.891 2.287-2.274 2.934-3.978.772-2.295.77-4.042 0-5.957m0 0c1.194-2.54 3.106-4.251 5.03-5.791"></path>
-            </svg>
-            تبلیغات
-          </button>
-          <button data-page="profile" class="nav-item px-4 py-2 rounded-xl text-sm font-medium text-gray-600 whitespace-nowrap flex items-center gap-2">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
-            </svg>
-            پروفایل
-          </button>
-        </div>
+      <nav class="bg-white border-b border-slate-200 px-2 py-2 flex gap-1 shrink-0 overflow-x-auto">
+        <button onclick="showPage('chat')" class="nav-btn active flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all" data-page="chat">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path></svg>
+          چت
+        </button>
+        <button onclick="showPage('profile')" class="nav-btn flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all" data-page="profile">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+          پروفایل
+        </button>
+        <button onclick="showPage('support')" class="nav-btn flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all" data-page="support">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+          پشتیبانی
+        </button>
+        <button onclick="showPage('ads')" class="nav-btn flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all" data-page="ads">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z"></path></svg>
+          تبلیغات
+        </button>
+        <button onclick="logout()" class="nav-btn flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all text-red-600 mr-auto">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
+          خروج
+        </button>
       </nav>
       
-      <!-- Content Area -->
-      <main class="flex-1 overflow-hidden">
+      <!-- Pages Container -->
+      <div id="pages-container" class="flex-1 overflow-hidden">
         
         <!-- Chat Page -->
-        <div id="chat-page" class="h-full flex flex-col">
-          <div id="chat-messages" class="flex-1 overflow-y-auto scroll-smooth p-4 space-y-4">
-            <!-- Welcome Message -->
-            <div class="chat-bubble-ai p-4 max-w-[85%] fade-in">
-              <p id="welcome-text" class="text-gray-700">سلام! من Acioai هستم، دستیار هوشمند شما. چطور می‌تونم کمکتون کنم؟</p>
+        <div id="chat-page" class="h-full flex flex-col page-transition">
+          <div id="messages-container" class="flex-1 overflow-y-auto p-4 space-y-4">
+            <div class="flex justify-center">
+              <div class="bg-white rounded-2xl px-6 py-4 shadow-sm border border-slate-100 text-center max-w-sm">
+                <div class="w-12 h-12 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl mx-auto mb-3 flex items-center justify-center">
+                  <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                </div>
+                <h3 class="font-bold text-slate-800 mb-1">سلام! من Acioai هستم</h3>
+                <p class="text-sm text-slate-500">چگونه می‌توانم کمکتان کنم؟</p>
+              </div>
             </div>
           </div>
           
-          <!-- Chat Input -->
-          <div class="glass-card border-t border-gray-100 p-4">
-            <form id="chat-form" class="flex gap-3">
-              <input type="text" id="chat-input" placeholder="پیام خود را بنویسید..." 
-                     class="flex-1 px-4 py-3 rounded-xl border border-gray-200 input-glow focus:outline-none focus:border-emerald-500 transition-all">
-              <button type="submit" id="send-btn" class="btn-primary px-6 py-3 rounded-xl text-white font-medium flex items-center gap-2">
-                <span>ارسال</span>
-                <svg class="w-5 h-5 rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
-                </svg>
+          <div class="p-4 bg-white border-t border-slate-200 shrink-0">
+            <form id="chat-form" onsubmit="sendMessage(event)" class="flex gap-3">
+              <input type="text" id="message-input" class="flex-1 px-4 py-3 rounded-xl border border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 outline-none transition-all" placeholder="پیام خود را بنویسید...">
+              <button type="submit" id="send-btn" class="px-5 py-3 bg-gradient-to-l from-indigo-600 to-purple-600 text-white rounded-xl hover:from-indigo-700 hover:to-purple-700 transition-all shadow-lg shadow-indigo-200 flex items-center gap-2">
+                <svg class="w-5 h-5 rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg>
               </button>
             </form>
-            <p id="message-counter" class="text-xs text-gray-400 mt-2 text-center"></p>
-          </div>
-        </div>
-        
-        <!-- FAQ Page -->
-        <div id="faq-page" class="hidden h-full overflow-y-auto scroll-smooth p-4">
-          <div class="max-w-2xl mx-auto">
-            <div class="mb-6">
-              <input type="text" id="faq-search" placeholder="جستجو در سوالات..." 
-                     class="w-full px-4 py-3 rounded-xl border border-gray-200 input-glow focus:outline-none focus:border-emerald-500 transition-all">
-            </div>
-            <div id="faq-list" class="space-y-3">
-              <div class="glass-card rounded-xl p-4 cursor-pointer hover:shadow-lg transition-all">
-                <h3 class="font-medium text-gray-800 mb-2">Acioai چیست؟</h3>
-                <p class="text-gray-600 text-sm">Acioai یک دستیار هوشمند مبتنی بر هوش مصنوعی است که به شما در پاسخ به سوالات کمک می‌کند.</p>
-              </div>
-              <div class="glass-card rounded-xl p-4 cursor-pointer hover:shadow-lg transition-all">
-                <h3 class="font-medium text-gray-800 mb-2">چگونه از چت استفاده کنم؟</h3>
-                <p class="text-gray-600 text-sm">کافیست سوال خود را در کادر پیام بنویسید و دکمه ارسال را بزنید.</p>
-              </div>
-              <div class="glass-card rounded-xl p-4 cursor-pointer hover:shadow-lg transition-all">
-                <h3 class="font-medium text-gray-800 mb-2">محدودیت پیام روزانه چقدر است؟</h3>
-                <p class="text-gray-600 text-sm">بسته به نوع اشتراک شما، محدودیت پیام متفاوت است. کاربران رایگان روزانه 10 پیام دارند.</p>
-              </div>
-            </div>
-          </div>
-        </div>
-        
-        <!-- Ads Page -->
-        <div id="ads-page" class="hidden h-full overflow-y-auto scroll-smooth p-4">
-          <div class="max-w-2xl mx-auto">
-            <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
-              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5.882V19.24a1.961 1.961 0 01-2.437-1.97V5.882m0 0a1.96 1.96 0 00-2.437 1.97m0 0V5.5c0-.891.12-1.751.364-2.59m0 0C5.307 1.364 6.308 1 7.5 1c2.979 0 5.497 1.98 6.5 4.5M15 19.24l.364 2.59c1.192-.891 2.287-2.274 2.934-3.978.772-2.295.77-4.042 0-5.957m0 0c1.194-2.54 3.106-4.251 5.03-5.791"></path>
-              </svg>
-              تبلیغات ویژه
-            </h2>
-            <div id="ads-list" class="grid gap-4">
-              <div id="ads-loading" class="text-center py-8 text-gray-500">
-                <div class="flex justify-center gap-1 mb-2">
-                  <div class="w-2 h-2 bg-emerald-500 rounded-full typing-dot"></div>
-                  <div class="w-2 h-2 bg-emerald-500 rounded-full typing-dot"></div>
-                  <div class="w-2 h-2 bg-emerald-500 rounded-full typing-dot"></div>
-                </div>
-                در حال بارگذاری...
-              </div>
-            </div>
           </div>
         </div>
         
         <!-- Profile Page -->
-        <div id="profile-page" class="hidden h-full overflow-y-auto scroll-smooth p-4">
+        <div id="profile-page" class="h-full overflow-y-auto p-4 hidden page-transition">
           <div class="max-w-md mx-auto">
-            <div class="glass-card rounded-2xl p-6 text-center mb-6">
-              <div class="w-20 h-20 mx-auto mb-4 rounded-full bg-gradient-to-br from-emerald-400 to-teal-500 flex items-center justify-center">
-                <span id="profile-avatar" class="text-3xl font-bold text-white">A</span>
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+              <div class="bg-gradient-to-l from-indigo-600 to-purple-600 px-6 py-8 text-center">
+                <div class="w-20 h-20 bg-white rounded-2xl mx-auto mb-4 flex items-center justify-center shadow-lg">
+                  <svg class="w-10 h-10 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+                </div>
+                <h2 id="profile-name" class="text-xl font-bold text-white">کاربر</h2>
+                <p id="profile-email" class="text-indigo-200 text-sm mt-1">email@example.com</p>
               </div>
-              <h2 id="profile-name" class="text-xl font-bold text-gray-800 mb-1">کاربر</h2>
-              <p id="profile-email" class="text-gray-500 text-sm mb-4">email@example.com</p>
-              <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-100 text-emerald-700">
-                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
-                </svg>
-                <span id="profile-subscription">Free</span>
+              
+              <div class="p-6 space-y-4">
+                <div class="flex items-center justify-between p-4 bg-slate-50 rounded-xl">
+                  <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-indigo-100 rounded-xl flex items-center justify-center">
+                      <svg class="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"></path></svg>
+                    </div>
+                    <span class="text-slate-600">نوع اشتراک</span>
+                  </div>
+                  <span id="profile-subscription" class="font-bold text-indigo-600">Free</span>
+                </div>
+                
+                <div class="flex items-center justify-between p-4 bg-slate-50 rounded-xl">
+                  <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-amber-100 rounded-xl flex items-center justify-center">
+                      <svg class="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path></svg>
+                    </div>
+                    <span class="text-slate-600">پیام مصرف‌شده امروز</span>
+                  </div>
+                  <span id="profile-used" class="font-bold text-amber-600">0</span>
+                </div>
+                
+                <div id="memory-status" class="p-4 bg-slate-50 rounded-xl">
+                  <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-slate-200 rounded-xl flex items-center justify-center">
+                      <svg class="w-5 h-5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    </div>
+                    <div>
+                      <p class="font-medium text-slate-700">حافظه گفتگو</p>
+                      <p id="memory-text" class="text-sm text-slate-500">گفتگو ذخیره نمی‌شود</p>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
             
-            <div class="glass-card rounded-2xl p-6">
-              <h3 class="font-bold text-gray-800 mb-4 flex items-center gap-2">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
-                </svg>
-                آمار امروز
-              </h3>
-              <div class="space-y-4">
-                <div class="flex justify-between items-center">
-                  <span class="text-gray-600">پیام‌های ارسالی</span>
-                  <span id="profile-messages" class="font-bold text-emerald-600">0 / 10</span>
+            <div class="mt-6 bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
+              <h3 class="font-bold text-slate-800 mb-4">محدودیت‌های اشتراک</h3>
+              <div class="space-y-3 text-sm">
+                <div class="flex justify-between text-slate-600">
+                  <span>Free</span>
+                  <span>10 پیام/روز - بدون حافظه</span>
                 </div>
-                <div class="w-full bg-gray-200 rounded-full h-2">
-                  <div id="profile-progress" class="bg-gradient-to-r from-emerald-400 to-teal-500 h-2 rounded-full transition-all" style="width: 0%"></div>
+                <div class="flex justify-between text-slate-600">
+                  <span>Go</span>
+                  <span>25 پیام/روز - با حافظه</span>
                 </div>
-              </div>
-            </div>
-            
-            <div class="mt-6 grid gap-3">
-              <div class="glass-card rounded-xl p-4 flex items-center gap-3">
-                <div class="w-10 h-10 rounded-lg bg-emerald-100 flex items-center justify-center">
-                  <svg class="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                  </svg>
+                <div class="flex justify-between text-slate-600">
+                  <span>Pro</span>
+                  <span>40 پیام/روز - با حافظه</span>
                 </div>
-                <div class="flex-1">
-                  <p class="font-medium text-gray-800">Free</p>
-                  <p class="text-xs text-gray-500">10 پیام روزانه</p>
-                </div>
-              </div>
-              <div class="glass-card rounded-xl p-4 flex items-center gap-3">
-                <div class="w-10 h-10 rounded-lg bg-blue-100 flex items-center justify-center">
-                  <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
-                  </svg>
-                </div>
-                <div class="flex-1">
-                  <p class="font-medium text-gray-800">Go</p>
-                  <p class="text-xs text-gray-500">25 پیام روزانه</p>
-                </div>
-              </div>
-              <div class="glass-card rounded-xl p-4 flex items-center gap-3">
-                <div class="w-10 h-10 rounded-lg bg-purple-100 flex items-center justify-center">
-                  <svg class="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3C6.477 3 2 6.582 2 11c0 5.174 3.588 9.542 8.563 9.947 1.047.135 1.369.395 1.369 2.645 0 .86-.264 1.338 1.684 2.53 1.023.692 3.172 1.746 3.172-1.97V20.5c4.970-.725 8.211-4.514 8.211-9.5 0-4.418-4.086-8-9.5-8z"></path>
-                  </svg>
-                </div>
-                <div class="flex-1">
-                  <p class="font-medium text-gray-800">Pro</p>
-                  <p class="text-xs text-gray-500">40 پیام روزانه</p>
-                </div>
-              </div>
-              <div class="glass-card rounded-xl p-4 flex items-center gap-3">
-                <div class="w-10 h-10 rounded-lg bg-yellow-100 flex items-center justify-center">
-                  <svg class="w-5 h-5 text-yellow-600" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
-                  </svg>
-                </div>
-                <div class="flex-1">
-                  <p class="font-medium text-gray-800">Plus</p>
-                  <p class="text-xs text-gray-500">50 پیام روزانه</p>
+                <div class="flex justify-between text-slate-600">
+                  <span>Plus</span>
+                  <span>50 پیام/روز - با حافظه</span>
                 </div>
               </div>
             </div>
           </div>
         </div>
         
-      </main>
+        <!-- Support Page -->
+        <div id="support-page" class="h-full flex flex-col hidden page-transition">
+          <div id="support-messages" class="flex-1 overflow-y-auto p-4 space-y-4">
+            <div class="flex justify-center">
+              <div class="bg-white rounded-2xl px-6 py-4 shadow-sm border border-slate-100 text-center max-w-sm">
+                <div class="w-12 h-12 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-xl mx-auto mb-3 flex items-center justify-center">
+                  <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+                </div>
+                <h3 class="font-bold text-slate-800 mb-1">پشتیبانی آکیو</h3>
+                <p class="text-sm text-slate-500">سوال یا مشکلی دارید؟ بپرسید!</p>
+              </div>
+            </div>
+          </div>
+          
+          <div class="p-4 bg-white border-t border-slate-200 shrink-0">
+            <form id="support-form" onsubmit="sendSupport(event)" class="flex gap-3">
+              <input type="text" id="support-input" class="flex-1 px-4 py-3 rounded-xl border border-slate-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 outline-none transition-all" placeholder="پیام خود را بنویسید...">
+              <button type="submit" class="px-5 py-3 bg-gradient-to-l from-emerald-600 to-teal-600 text-white rounded-xl hover:from-emerald-700 hover:to-teal-700 transition-all shadow-lg shadow-emerald-200 flex items-center gap-2">
+                <svg class="w-5 h-5 rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg>
+              </button>
+            </form>
+          </div>
+        </div>
+        
+        <!-- Ads Page -->
+        <div id="ads-page" class="h-full overflow-y-auto p-4 hidden page-transition">
+          <div class="max-w-2xl mx-auto">
+            <div class="flex items-center gap-3 mb-6">
+              <div class="w-10 h-10 bg-gradient-to-br from-amber-500 to-orange-600 rounded-xl flex items-center justify-center">
+                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z"></path></svg>
+              </div>
+              <div>
+                <h2 class="font-bold text-slate-800">تبلیغات</h2>
+                <p class="text-sm text-slate-500">پیشنهادات ویژه برای شما</p>
+              </div>
+            </div>
+            
+            <div id="ads-container" class="grid gap-4">
+              <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-8 text-center">
+                <div class="w-12 h-12 bg-slate-100 rounded-xl mx-auto mb-3 flex items-center justify-center">
+                  <svg class="w-6 h-6 text-slate-400 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                </div>
+                <p class="text-slate-500">در حال بارگذاری تبلیغات...</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+      </div>
     </div>
     
   </div>
 
   <script>
-    // Configuration
-    const API_BASE = 'https://script.google.com/macros/s/AKfycbzFnztCLVqfKOiGMhvtwFmlIQC-086TQi1zAl0zojs0EYqukTrQgqrfRdOmKiiPzBbt/exec';
+    const API_BASE = 'https://script.google.com/macros/s/AKfycbzNeX--pG82_Z-8uIupVnrHD1mFGl1BjTutak1YDiUceVNJD_k9UCWkLJ1Mllqz1zcZ/exec';
+    
+    let currentUser = null;
+    let authMode = 'login';
+    let messages = [];
+    let supportMessages = [];
     
     const defaultConfig = {
-      app_title: 'Acioai',
-      welcome_message: 'سلام! من Acioai هستم، دستیار هوشمند شما. چطور می‌تونم کمکتون کنم؟',
-      primary_color: '#10B981',
-      secondary_color: '#ffffff',
-      text_color: '#1f2937',
-      accent_color: '#059669',
-      bg_color: '#ecfdf5'
+      app_title: 'Acioai'
     };
     
-    // State
-    let currentUser = null;
-    let isLoginMode = false;
-    let dailyMessages = 0;
-    let maxMessages = 10;
-    let chatHistory = [];
-    let adsData = [];
-    let isLoading = false;
+    let config = { ...defaultConfig };
     
-    // DOM Elements
-    const authScreen = document.getElementById('auth-screen');
-    const mainApp = document.getElementById('main-app');
-    const authForm = document.getElementById('auth-form');
-    const nameField = document.getElementById('name-field');
-    const nameInput = document.getElementById('name-input');
-    const emailInput = document.getElementById('email-input');
-    const authSubmit = document.getElementById('auth-submit');
-    const toggleAuth = document.getElementById('toggle-auth');
-    const authError = document.getElementById('auth-error');
-    const authTitle = document.getElementById('auth-title');
-    const headerTitle = document.getElementById('header-title');
-    const userDisplay = document.getElementById('user-display');
-    const logoutBtn = document.getElementById('logout-btn');
-    const chatMessages = document.getElementById('chat-messages');
-    const chatForm = document.getElementById('chat-form');
-    const chatInput = document.getElementById('chat-input');
-    const sendBtn = document.getElementById('send-btn');
-    const messageCounter = document.getElementById('message-counter');
-    const welcomeText = document.getElementById('welcome-text');
-    const profileName = document.getElementById('profile-name');
-    const profileEmail = document.getElementById('profile-email');
-    const profileAvatar = document.getElementById('profile-avatar');
-    const profileSubscription = document.getElementById('profile-subscription');
-    const profileMessages = document.getElementById('profile-messages');
-    const profileProgress = document.getElementById('profile-progress');
-    const adsList = document.getElementById('ads-list');
-    const adsLoading = document.getElementById('ads-loading');
-    const faqSearch = document.getElementById('faq-search');
+    if (window.elementSdk) {
+      window.elementSdk.init({
+        defaultConfig,
+        onConfigChange: async (newConfig) => {
+          config = { ...defaultConfig, ...newConfig };
+          document.getElementById('header-title').textContent = config.app_title || defaultConfig.app_title;
+        },
+        mapToCapabilities: () => ({
+          recolorables: [],
+          borderables: [],
+          fontEditable: undefined,
+          fontSizeable: undefined
+        }),
+        mapToEditPanelValues: (cfg) => new Map([
+          ['app_title', cfg.app_title || defaultConfig.app_title]
+        ])
+      });
+    }
     
-    // Subscription limits
-    const subscriptionLimits = {
-      'Free': 10,
-      'Go': 25,
-      'Pro': 40,
-      'Plus': 50
-    };
-    
-
-    
-    // Initialize SDKs
-    async function initializeApp() {
-      if (window.elementSdk) {
-        window.elementSdk.init({
-          defaultConfig,
-          onConfigChange: async (config) => {
-            applyConfig(config);
-          },
-          mapToCapabilities: (config) => ({
-            recolorables: [
-              {
-                get: () => config.bg_color || defaultConfig.bg_color,
-                set: (value) => window.elementSdk.setConfig({ bg_color: value })
-              },
-              {
-                get: () => config.secondary_color || defaultConfig.secondary_color,
-                set: (value) => window.elementSdk.setConfig({ secondary_color: value })
-              },
-              {
-                get: () => config.text_color || defaultConfig.text_color,
-                set: (value) => window.elementSdk.setConfig({ text_color: value })
-              },
-              {
-                get: () => config.primary_color || defaultConfig.primary_color,
-                set: (value) => window.elementSdk.setConfig({ primary_color: value })
-              },
-              {
-                get: () => config.accent_color || defaultConfig.accent_color,
-                set: (value) => window.elementSdk.setConfig({ accent_color: value })
-              }
-            ],
-            borderables: [],
-            fontEditable: undefined,
-            fontSizeable: undefined
-          }),
-          mapToEditPanelValues: (config) => new Map([
-            ['app_title', config.app_title || defaultConfig.app_title],
-            ['welcome_message', config.welcome_message || defaultConfig.welcome_message]
-          ])
-        });
+    function switchAuthTab(mode) {
+      authMode = mode;
+      const loginTab = document.getElementById('login-tab');
+      const registerTab = document.getElementById('register-tab');
+      const nameField = document.getElementById('name-field');
+      const submitBtn = document.getElementById('auth-submit');
+      
+      if (mode === 'login') {
+        loginTab.classList.add('bg-white', 'text-slate-800', 'shadow-sm');
+        loginTab.classList.remove('text-slate-500');
+        registerTab.classList.remove('bg-white', 'text-slate-800', 'shadow-sm');
+        registerTab.classList.add('text-slate-500');
+        nameField.classList.add('hidden');
+        submitBtn.textContent = 'ورود';
+      } else {
+        registerTab.classList.add('bg-white', 'text-slate-800', 'shadow-sm');
+        registerTab.classList.remove('text-slate-500');
+        loginTab.classList.remove('bg-white', 'text-slate-800', 'shadow-sm');
+        loginTab.classList.add('text-slate-500');
+        nameField.classList.remove('hidden');
+        submitBtn.textContent = 'ثبت‌نام';
       }
       
-      const savedUser = localStorage.getItem('acioai_user');
-      if (savedUser) {
-        try {
-          currentUser = JSON.parse(savedUser);
-          showMainApp();
-        } catch (e) {
-          localStorage.removeItem('acioai_user');
-        }
-      }
-    }
-    
-    function applyConfig(config) {
-      const title = config.app_title || defaultConfig.app_title;
-      const welcome = config.welcome_message || defaultConfig.welcome_message;
-      const primary = config.primary_color || defaultConfig.primary_color;
-      const secondary = config.secondary_color || defaultConfig.secondary_color;
-      const text = config.text_color || defaultConfig.text_color;
-      const accent = config.accent_color || defaultConfig.accent_color;
-      const bg = config.bg_color || defaultConfig.bg_color;
-      
-      authTitle.textContent = title;
-      headerTitle.textContent = title;
-      document.title = title;
-      
-      welcomeText.textContent = welcome;
-      
-      document.body.style.background = `linear-gradient(135deg, ${bg} 0%, #ffffff 50%, ${bg}88 100%)`;
-      
-      document.querySelectorAll('.btn-primary').forEach(btn => {
-        btn.style.background = `linear-gradient(135deg, ${primary} 0%, ${accent} 100%)`;
-      });
-      
-      document.querySelectorAll('.nav-item.active').forEach(nav => {
-        nav.style.background = `linear-gradient(135deg, ${primary} 0%, ${accent} 100%)`;
-      });
-      
-      document.querySelectorAll('.text-gray-800').forEach(el => {
-        el.style.color = text;
-      });
-      
-      document.querySelectorAll('.glass-card').forEach(card => {
-        card.style.background = `${secondary}f5`;
-      });
-    }
-    
-    // Auth Functions
-    function toggleAuthMode() {
-      isLoginMode = !isLoginMode;
-      nameField.classList.toggle('hidden', isLoginMode);
-      authSubmit.textContent = isLoginMode ? 'ورود' : 'ثبت‌نام';
-      toggleAuth.textContent = isLoginMode ? 'حساب ندارید؟ ثبت‌نام کنید' : 'حساب دارید؟ وارد شوید';
-      authError.classList.add('hidden');
-    }
-    
-    function showError(message) {
-      authError.textContent = message;
-      authError.classList.remove('hidden');
+      document.getElementById('auth-error').classList.add('hidden');
     }
     
     async function handleAuth(e) {
       e.preventDefault();
-      
-      const email = emailInput.value.trim();
-      const name = nameInput.value.trim();
+      const email = document.getElementById('email-input').value.trim();
+      const name = document.getElementById('name-input').value.trim();
+      const errorEl = document.getElementById('auth-error');
+      const submitBtn = document.getElementById('auth-submit');
       
       if (!email) {
-        showError('لطفاً ایمیل را وارد کنید');
+        errorEl.textContent = 'لطفاً ایمیل خود را وارد کنید';
+        errorEl.classList.remove('hidden');
         return;
       }
       
-      if (!isLoginMode && !name) {
-        showError('لطفاً نام را وارد کنید');
+      if (authMode === 'register' && !name) {
+        errorEl.textContent = 'لطفاً نام خود را وارد کنید';
+        errorEl.classList.remove('hidden');
         return;
       }
       
-      authSubmit.disabled = true;
-      authSubmit.textContent = 'لطفاً صبر کنید...';
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'لطفاً صبر کنید...';
+      errorEl.classList.add('hidden');
       
       try {
-        const action = isLoginMode ? 'login' : 'register';
-        let url = `${API_BASE}?action=${action}&email=${encodeURIComponent(email)}`;
-        if (!isLoginMode) {
-          url += `&name=${encodeURIComponent(name)}`;
-        }
-        
-        const response = await fetch(url);
-        const data = await response.json();
-        
-        if (data.ok && data.Result) {
-          currentUser = data.Result;
-          maxMessages = subscriptionLimits[currentUser.subscription] || 10;
-          localStorage.setItem('acioai_user', JSON.stringify(currentUser));
+        if (authMode === 'register') {
+          const regRes = await fetch(`${API_BASE}?action=register&name=${encodeURIComponent(name)}&email=${encodeURIComponent(email)}`);
+          const regData = await regRes.json();
           
-          showMainApp();
-        } else {
-          const errorMsg = data.error || 'خطا در عملیات';
-          if (errorMsg === 'EMAIL_EXISTS') {
-            showError('این ایمیل قبلاً ثبت شده است');
-          } else if (errorMsg === 'USER_NOT_FOUND') {
-            showError('کاربری با این ایمیل یافت نشد');
-          } else {
-            showError(errorMsg);
+          if (!regData.ok) {
+            throw new Error(regData.error || 'خطا در ثبت‌نام');
           }
         }
-      } catch (error) {
-        showError('خطا در اتصال به سرور');
+        
+        const loginRes = await fetch(`${API_BASE}?action=login&email=${encodeURIComponent(email)}`);
+        const loginData = await loginRes.json();
+        
+        if (!loginData.ok) {
+          throw new Error(loginData.error || 'خطا در ورود');
+        }
+        
+        currentUser = loginData.user;
+        localStorage.setItem('acioai_user', JSON.stringify(currentUser));
+        showMainApp();
+        
+      } catch (err) {
+        errorEl.textContent = err.message || 'خطا در ارتباط با سرور';
+        errorEl.classList.remove('hidden');
       } finally {
-        authSubmit.disabled = false;
-        authSubmit.textContent = isLoginMode ? 'ورود' : 'ثبت‌نام';
+        submitBtn.disabled = false;
+        submitBtn.textContent = authMode === 'login' ? 'ورود' : 'ثبت‌نام';
       }
     }
     
     function showMainApp() {
-      authScreen.classList.add('hidden');
-      mainApp.classList.remove('hidden');
-      
-      userDisplay.textContent = currentUser.name;
-      profileName.textContent = currentUser.name;
-      profileEmail.textContent = emailInput.value || currentUser.email || 'email@example.com';
-      profileAvatar.textContent = currentUser.name.charAt(0).toUpperCase();
-      profileSubscription.textContent = currentUser.subscription;
-      
-      maxMessages = subscriptionLimits[currentUser.subscription] || 10;
-      updateMessageCounter();
-      updateProfileStats();
+      document.getElementById('auth-page').classList.add('hidden');
+      document.getElementById('main-app').classList.remove('hidden');
+      updateUserInfo();
       loadAds();
     }
     
-    function logout() {
-      currentUser = null;
-      dailyMessages = 0;
-      chatHistory = [];
-      localStorage.removeItem('acioai_user');
+    function updateUserInfo() {
+      if (!currentUser) return;
       
-      const messages = chatMessages.querySelectorAll('[data-timestamp]');
-      messages.forEach(msg => msg.remove());
+      const limits = { Free: 10, Go: 25, Pro: 40, Plus: 50 };
+      const limit = limits[currentUser.subscription] || 10;
+      const remaining = Math.max(0, limit - (currentUser.usedToday || 0));
       
-      mainApp.classList.add('hidden');
-      authScreen.classList.remove('hidden');
+      document.getElementById('remaining-messages').textContent = `${remaining} پیام باقی‌مانده`;
+      document.getElementById('profile-name').textContent = currentUser.name || 'کاربر';
+      document.getElementById('profile-email').textContent = currentUser.email || '';
+      document.getElementById('profile-subscription').textContent = currentUser.subscription || 'Free';
+      document.getElementById('profile-used').textContent = currentUser.usedToday || 0;
       
-      emailInput.value = '';
-      nameInput.value = '';
-      authError.classList.add('hidden');
+      const memoryText = document.getElementById('memory-text');
+      const memoryStatus = document.getElementById('memory-status');
+      
+      if (currentUser.subscription === 'Free') {
+        memoryText.textContent = 'گفتگو ذخیره نمی‌شود';
+        memoryStatus.querySelector('div > div').classList.remove('bg-emerald-100');
+        memoryStatus.querySelector('div > div').classList.add('bg-slate-200');
+        memoryStatus.querySelector('svg').classList.remove('text-emerald-500');
+        memoryStatus.querySelector('svg').classList.add('text-slate-500');
+      } else {
+        memoryText.textContent = 'گفتگو دارای حافظه است';
+        memoryStatus.querySelector('div > div').classList.add('bg-emerald-100');
+        memoryStatus.querySelector('div > div').classList.remove('bg-slate-200');
+        memoryStatus.querySelector('svg').classList.add('text-emerald-500');
+        memoryStatus.querySelector('svg').classList.remove('text-slate-500');
+      }
     }
     
-    // Chat Functions
-    function updateMessageCounter() {
-      messageCounter.textContent = `${dailyMessages} از ${maxMessages} پیام امروز`;
-      updateProfileStats();
-    }
-    
-    function updateProfileStats() {
-      profileMessages.textContent = `${dailyMessages} / ${maxMessages}`;
-      const progress = (dailyMessages / maxMessages) * 100;
-      profileProgress.style.width = `${Math.min(progress, 100)}%`;
-    }
-    
-    function addMessageToChat(role, text, timestamp) {
-      const bubble = document.createElement('div');
-      bubble.dataset.timestamp = timestamp;
-      bubble.className = `fade-in max-w-[85%] ${role === 'user' ? 'chat-bubble-user mr-auto' : 'chat-bubble-ai ml-auto'}`;
+    function showPage(page) {
+      const pages = ['chat', 'profile', 'support', 'ads'];
+      pages.forEach(p => {
+        document.getElementById(`${p}-page`).classList.add('hidden');
+        document.querySelector(`[data-page="${p}"]`)?.classList.remove('active', 'bg-indigo-100', 'text-indigo-700');
+      });
       
-      const p = document.createElement('p');
-      p.className = role === 'user' ? 'text-white p-4' : 'text-gray-700 p-4';
-      p.textContent = text;
-      
-      bubble.appendChild(p);
-      chatMessages.appendChild(bubble);
-      chatMessages.scrollTop = chatMessages.scrollHeight;
-    }
-    
-    function addTypingIndicator() {
-      const typing = document.createElement('div');
-      typing.id = 'typing-indicator';
-      typing.className = 'chat-bubble-ai p-4 max-w-[85%] fade-in';
-      typing.innerHTML = `
-        <div class="flex gap-1 items-center">
-          <div class="w-2 h-2 bg-emerald-500 rounded-full typing-dot"></div>
-          <div class="w-2 h-2 bg-emerald-500 rounded-full typing-dot"></div>
-          <div class="w-2 h-2 bg-emerald-500 rounded-full typing-dot"></div>
-        </div>
-      `;
-      chatMessages.appendChild(typing);
-      chatMessages.scrollTop = chatMessages.scrollHeight;
-    }
-    
-    function removeTypingIndicator() {
-      const typing = document.getElementById('typing-indicator');
-      if (typing) typing.remove();
+      document.getElementById(`${page}-page`).classList.remove('hidden');
+      document.querySelector(`[data-page="${page}"]`)?.classList.add('active', 'bg-indigo-100', 'text-indigo-700');
     }
     
     async function sendMessage(e) {
       e.preventDefault();
+      const input = document.getElementById('message-input');
+      const text = input.value.trim();
+      const sendBtn = document.getElementById('send-btn');
       
-      const text = chatInput.value.trim();
-      if (!text || isLoading) return;
+      if (!text || !currentUser) return;
       
-      if (dailyMessages >= maxMessages) {
-        addMessageToChat('ai', 'شما به محدودیت پیام روزانه رسیده‌اید. برای ارسال پیام بیشتر، اشتراک خود را ارتقا دهید.', new Date().toISOString());
-        return;
-      }
-      
-      isLoading = true;
-      chatInput.value = '';
+      input.value = '';
       sendBtn.disabled = true;
       
-      const userTimestamp = new Date().toISOString();
-      addMessageToChat('user', text, userTimestamp);
+      addMessage(text, 'user');
       
-      dailyMessages++;
-      updateMessageCounter();
-      
-      addTypingIndicator();
+      const typingEl = addTypingIndicator();
       
       try {
-        const url = `${API_BASE}?action=chat&userid=${currentUser.userId}&text=${encodeURIComponent(text)}`;
-        const response = await fetch(url);
-        const data = await response.json();
+        const res = await fetch(`${API_BASE}?action=chat&userid=${currentUser.id}&text=${encodeURIComponent(text)}`);
+        const data = await res.json();
         
-        removeTypingIndicator();
+        typingEl.remove();
         
-        let aiResponse = 'متأسفانه در دریافت پاسخ مشکلی پیش آمد.';
-        if (data.ok && data.Result) {
-          aiResponse = data.Result;
-        } else if (data.error === 'DAILY_LIMIT_REACHED') {
-          aiResponse = 'شما به محدودیت پیام روزانه رسیده‌اید.';
+        if (data.ok) {
+          currentUser.usedToday = (currentUser.usedToday || 0) + 1;
+          updateUserInfo();
+          await typeMessage(data.result, 'ai');
+        } else {
+          addMessage(data.error || 'خطا در دریافت پاسخ', 'error');
         }
         
-        const aiTimestamp = new Date().toISOString();
-        addMessageToChat('ai', aiResponse, aiTimestamp);
-        
-      } catch (error) {
-        removeTypingIndicator();
-        addMessageToChat('ai', 'خطا در اتصال به سرور. لطفاً دوباره تلاش کنید.', new Date().toISOString());
+      } catch (err) {
+        typingEl.remove();
+        addMessage('خطا در ارتباط با سرور. لطفاً دوباره تلاش کنید.', 'error');
       } finally {
-        isLoading = false;
         sendBtn.disabled = false;
-        chatInput.focus();
       }
     }
     
-    // Navigation
-    function switchPage(pageName) {
-      const pages = ['chat', 'faq', 'ads', 'profile'];
-      pages.forEach(page => {
-        const pageEl = document.getElementById(`${page}-page`);
-        const navEl = document.querySelector(`[data-page="${page}"]`);
-        
-        if (page === pageName) {
-          pageEl.classList.remove('hidden');
-          navEl.classList.add('active');
-          
-          const config = window.elementSdk ? window.elementSdk.config : defaultConfig;
-          const primary = config.primary_color || defaultConfig.primary_color;
-          const accent = config.accent_color || defaultConfig.accent_color;
-          navEl.style.background = `linear-gradient(135deg, ${primary} 0%, ${accent} 100%)`;
-          navEl.style.color = 'white';
-        } else {
-          pageEl.classList.add('hidden');
-          navEl.classList.remove('active');
-          navEl.style.background = '';
-          navEl.style.color = '';
-        }
+    function addMessage(text, type) {
+      const container = document.getElementById('messages-container');
+      const div = document.createElement('div');
+      div.className = `flex ${type === 'user' ? 'justify-end' : 'justify-start'} message-appear`;
+      
+      let bgClass, textClass;
+      if (type === 'user') {
+        bgClass = 'bg-gradient-to-l from-indigo-600 to-purple-600 text-white';
+      } else if (type === 'error') {
+        bgClass = 'bg-red-100 text-red-700';
+      } else {
+        bgClass = 'bg-white border border-slate-200 text-slate-800';
+      }
+      
+      div.innerHTML = `
+        <div class="max-w-xs sm:max-w-md lg:max-w-lg px-4 py-3 rounded-2xl ${bgClass} shadow-sm">
+          ${type === 'ai' ? '<div class="flex items-center gap-2 mb-2 pb-2 border-b border-slate-100"><div class="w-6 h-6 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg flex items-center justify-center"><svg class="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M13 10V3L4 14h7v7l9-11h-7z"/></svg></div><span class="text-xs text-slate-500">Acioai 1.0.0</span></div>' : ''}
+          <p class="text-sm leading-relaxed whitespace-pre-wrap">${text}</p>
+        </div>
+      `;
+      
+      container.appendChild(div);
+      container.scrollTop = container.scrollHeight;
+      
+      return div;
+    }
+    
+    function addTypingIndicator() {
+      const container = document.getElementById('messages-container');
+      const div = document.createElement('div');
+      div.className = 'flex justify-start message-appear';
+      div.id = 'typing-indicator';
+      
+      div.innerHTML = `
+        <div class="bg-white border border-slate-200 px-4 py-3 rounded-2xl shadow-sm">
+          <div class="typing-indicator flex gap-1">
+            <span class="w-2 h-2 bg-indigo-400 rounded-full"></span>
+            <span class="w-2 h-2 bg-indigo-400 rounded-full"></span>
+            <span class="w-2 h-2 bg-indigo-400 rounded-full"></span>
+          </div>
+        </div>
+      `;
+      
+      container.appendChild(div);
+      container.scrollTop = container.scrollHeight;
+      
+      return div;
+    }
+    
+    async function typeMessage(text, type) {
+      const container = document.getElementById('messages-container');
+      const div = document.createElement('div');
+      div.className = 'flex justify-start message-appear';
+      
+      div.innerHTML = `
+        <div class="max-w-xs sm:max-w-md lg:max-w-lg px-4 py-3 rounded-2xl bg-white border border-slate-200 text-slate-800 shadow-sm">
+          <div class="flex items-center gap-2 mb-2 pb-2 border-b border-slate-100">
+            <div class="w-6 h-6 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg flex items-center justify-center">
+              <svg class="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+            </div>
+            <span class="text-xs text-slate-500">Acioai 1.0.0</span>
+          </div>
+          <p class="text-sm leading-relaxed whitespace-pre-wrap" id="typing-text"></p>
+        </div>
+      `;
+      
+      container.appendChild(div);
+      
+      const textEl = div.querySelector('#typing-text');
+      let i = 0;
+      
+      return new Promise(resolve => {
+        const interval = setInterval(() => {
+          if (i < text.length) {
+            textEl.textContent += text[i];
+            i++;
+            container.scrollTop = container.scrollHeight;
+          } else {
+            clearInterval(interval);
+            resolve();
+          }
+        }, 20);
       });
     }
     
-    // Load Ads
+    async function sendSupport(e) {
+      e.preventDefault();
+      const input = document.getElementById('support-input');
+      const text = input.value.trim();
+      
+      if (!text) return;
+      
+      input.value = '';
+      addSupportMessage(text, 'user');
+      
+      setTimeout(() => {
+        addSupportMessage('پیام شما دریافت شد. تیم پشتیبانی به زودی پاسخ خواهد داد.', 'admin');
+      }, 1000);
+    }
+    
+    function addSupportMessage(text, type) {
+      const container = document.getElementById('support-messages');
+      const div = document.createElement('div');
+      div.className = `flex ${type === 'user' ? 'justify-end' : 'justify-start'} message-appear`;
+      
+      const bgClass = type === 'user' 
+        ? 'bg-gradient-to-l from-emerald-600 to-teal-600 text-white' 
+        : 'bg-white border border-slate-200 text-slate-800';
+      
+      div.innerHTML = `
+        <div class="max-w-xs sm:max-w-md px-4 py-3 rounded-2xl ${bgClass} shadow-sm">
+          ${type === 'admin' ? '<div class="flex items-center gap-2 mb-2"><span class="text-xs text-emerald-600 font-medium">پشتیبانی</span><svg class="w-4 h-4 text-blue-500" fill="currentColor" viewBox="0 0 24 24"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg></div>' : ''}
+          <p class="text-sm leading-relaxed">${text}</p>
+        </div>
+      `;
+      
+      container.appendChild(div);
+      container.scrollTop = container.scrollHeight;
+    }
+    
     async function loadAds() {
+      const container = document.getElementById('ads-container');
+      
       try {
-        const response = await fetch(`${API_BASE}?action=ads`);
-        const data = await response.json();
+        const res = await fetch(`${API_BASE}?action=ads`);
+        const data = await res.json();
         
-        adsLoading.classList.add('hidden');
-        
-        if (data.ok && data.Result && data.Result.length > 0) {
-          adsData = data.Result;
-          renderAds();
+        if (data.ok && data.ads && data.ads.length > 0) {
+          container.innerHTML = data.ads.map(ad => `
+            <a href="${ad.url}" target="_blank" rel="noopener noreferrer" class="block bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden hover:shadow-md transition-shadow">
+              <img src="${ad.image}" alt="${ad.name}" class="w-full h-48 object-cover" loading="lazy" onerror="this.style.background='linear-gradient(135deg, #f1f5f9, #e2e8f0)'; this.alt='تصویر در دسترس نیست';">
+              <div class="p-4">
+                <h3 class="font-bold text-slate-800">${ad.name}</h3>
+                <p class="text-sm text-indigo-600 mt-2 flex items-center gap-1">
+                  مشاهده
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+                </p>
+              </div>
+            </a>
+          `).join('');
         } else {
-          adsList.innerHTML = `
-            <div class="text-center py-8 text-gray-500">
-              <div class="text-4xl mb-2">📭</div>
-              <p>در حال حاضر تبلیغی موجود نیست</p>
+          container.innerHTML = `
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-8 text-center">
+              <div class="w-12 h-12 bg-slate-100 rounded-xl mx-auto mb-3 flex items-center justify-center">
+                <svg class="w-6 h-6 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"></path></svg>
+              </div>
+              <p class="text-slate-500">تبلیغی برای نمایش وجود ندارد</p>
             </div>
           `;
         }
-      } catch (error) {
-        adsLoading.classList.add('hidden');
-        adsList.innerHTML = `
-          <div class="text-center py-8 text-gray-500">
-            <div class="text-4xl mb-2">⚠️</div>
-            <p>خطا در بارگذاری تبلیغات</p>
+        
+      } catch (err) {
+        container.innerHTML = `
+          <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-8 text-center">
+            <div class="w-12 h-12 bg-red-100 rounded-xl mx-auto mb-3 flex items-center justify-center">
+              <svg class="w-6 h-6 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            </div>
+            <p class="text-red-500">خطا در بارگذاری تبلیغات</p>
           </div>
         `;
       }
     }
     
-    function renderAds() {
-      adsList.innerHTML = adsData.map(ad => `
-        <a href="${ad.url}" target="_blank" rel="noopener noreferrer" class="ad-card glass-card rounded-2xl overflow-hidden block">
-          <img src="${ad.image}" alt="${ad.name}" class="w-full h-48 object-cover" loading="lazy" onerror="this.style.background='linear-gradient(135deg, #10B981 0%, #059669 100%)'; this.alt='Image unavailable';">
-          <div class="p-4">
-            <h3 class="font-medium text-gray-800">${ad.name}</h3>
+    function logout() {
+      currentUser = null;
+      messages = [];
+      localStorage.removeItem('acioai_user');
+      
+      document.getElementById('main-app').classList.add('hidden');
+      document.getElementById('auth-page').classList.remove('hidden');
+      document.getElementById('email-input').value = '';
+      document.getElementById('name-input').value = '';
+      
+      const msgContainer = document.getElementById('messages-container');
+      msgContainer.innerHTML = `
+        <div class="flex justify-center">
+          <div class="bg-white rounded-2xl px-6 py-4 shadow-sm border border-slate-100 text-center max-w-sm">
+            <div class="w-12 h-12 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl mx-auto mb-3 flex items-center justify-center">
+              <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+            </div>
+            <h3 class="font-bold text-slate-800 mb-1">سلام! من Acioai هستم</h3>
+            <p class="text-sm text-slate-500">چگونه می‌توانم کمکتان کنم؟</p>
           </div>
-        </a>
-      `).join('');
+        </div>
+      `;
     }
     
-    // FAQ Search
-    async function searchFAQ() {
-      const query = faqSearch.value.trim();
-      if (!query) return;
-      
+    // Check for saved user on load
+    const savedUser = localStorage.getItem('acioai_user');
+    if (savedUser) {
       try {
-        const response = await fetch(`${API_BASE}?action=faq&query=${encodeURIComponent(query)}`);
-        const data = await response.json();
-        
-        if (data.ok && data.Result) {
-          const faqList = document.getElementById('faq-list');
-          faqList.innerHTML = `
-            <div class="glass-card rounded-xl p-4 fade-in">
-              <h3 class="font-medium text-gray-800 mb-2">${query}</h3>
-              <p class="text-gray-600 text-sm">${data.Result}</p>
-            </div>
-          `;
-        }
-      } catch (error) {
-        console.error('FAQ search error');
+        currentUser = JSON.parse(savedUser);
+        showMainApp();
+      } catch (e) {
+        localStorage.removeItem('acioai_user');
       }
     }
     
-    // Event Listeners
-    toggleAuth.addEventListener('click', toggleAuthMode);
-    authForm.addEventListener('submit', handleAuth);
-    logoutBtn.addEventListener('click', logout);
-    chatForm.addEventListener('submit', sendMessage);
-    
-    document.querySelectorAll('[data-page]').forEach(btn => {
-      btn.addEventListener('click', () => switchPage(btn.dataset.page));
-    });
-    
-    faqSearch.addEventListener('input', () => {
-      clearTimeout(faqSearch.searchTimeout);
-      faqSearch.searchTimeout = setTimeout(searchFAQ, 500);
-    });
-    
-    // Initialize
-    initializeApp();
+    // Set initial active nav
+    document.querySelector('[data-page="chat"]').classList.add('bg-indigo-100', 'text-indigo-700');
   </script>
 </body>
 </html>
